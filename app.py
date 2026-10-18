@@ -99,9 +99,13 @@ class Handler(BaseHTTPRequestHandler):
                 if isinstance(e, LookupError):
                     pass
                 elif type(e).__name__ in ("IpBlocked", "RequestBlocked", "YouTubeRequestFailed") or "429" in str(e):
-                    msg = ("YouTube has temporarily blocked transcript requests from your internet connection "
-                           "(too many requests). Wait 30-60 minutes and try again, or switch network "
-                           "(e.g. mobile hotspot). The link itself is fine.")
+                    if os.environ.get("PORT"):
+                        msg = ("YouTube is blocking transcript requests from this hosting server (YouTube blocks "
+                               "cloud servers). Use the PC version instead. The link itself is fine.")
+                    else:
+                        msg = ("YouTube has temporarily blocked transcript requests from your internet connection "
+                               "(too many requests). Wait 30-60 minutes and try again, or switch network "
+                               "(e.g. mobile hotspot). The link itself is fine.")
                 elif "disabled" in msg.lower() or "No transcripts" in msg:
                     msg = "This video has no captions/transcript available."
                 return self.send(400, json.dumps({"error": msg}), "application/json")
